@@ -46,11 +46,11 @@ long timeValue;
 long startValue;
 WidgetLED led1(V1);
 WidgetLED led2(V2);
-BLYNK_WRITE(V0) //input from Numeric Widget
+BLYNK_WRITE(V0) //input from Numeric Widget - timer value
 {
   timeValue = param[0].asLong();
 }
-BLYNK_WRITE(V3) //input from Numeric Widget
+BLYNK_WRITE(V3) //input from Numeric Widget - motor button
 {
   startValue = param[0].asLong();
 }
@@ -63,32 +63,41 @@ void setup()
 void loop()
 {
  int ledValue=digitalRead(D3);
+  
  Serial.print("start value : ");
  Serial.println(startValue);
  led2.off();
+ // checking if motor button is tapped or not.
  if(startValue==1){
+   
+  //turned on relay to trigger motor.
   digitalWrite(D0, 1);
+
   Serial.println("D0 pin is high.");
+   
+  //checking if time value is given or not, if given based on that input, motor will be on.
   if(timeValue!=0){
     int delayTime=1000*timeValue;
     led2.on();
     delay(delayTime);
-    digitalWrite(D0, 0);
-    Blynk.virtualWrite(V3, 0);
-    startValue=0;
     led2.off();
   }
+   //if time value is equal to zero, or not given then by default 10sec motor will be on.
   else{
     led2.on();
     delay(10000);
-    digitalWrite(D0, 0);
-    Blynk.virtualWrite(V3, 0);
-    startValue=0;
     led2.off();
-  }
+  } 
+   
+  digitalWrite(D0, 0);
+  Blynk.virtualWrite(V3, 0);
+  startValue=0;
  }
+  
   Serial.println("LED on V1: off");
   led1.off();
+  
+  //connectivity check
   if(ledValue==1){
     led1.on();
     Serial.println(ledValue);
